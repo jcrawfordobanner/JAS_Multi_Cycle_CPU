@@ -27,8 +27,8 @@ output [5:0] funct, // Instruction from R-Type Signals
 output [4:0] rt, // Reg[rt]
 output [15:0] imm, // immediate value
 output [25:0] address, // mux address
-input [31:0] instruction // The instruction itself, from assembly
-input [2:0] state // The instruction itself, from assembly
+input [31:0] instruction, // The instruction itself, from assembly
+input [2:0] state, // The instruction itself, from assembly
 output PC_WE,
 output MemIn,
 output Mem_WE,
