@@ -3,6 +3,8 @@
 `include "LUT.v"
 `include "memory.v"
 `include "IFU.v"
+`include "register.v"
+`include "mux4.v"
 
 
 module SCPU
@@ -11,98 +13,147 @@ module SCPU
  input reset
 );
 	 wire zim, zero, nzim, nzero, cout, oflow, // 1-bit outputs of the ALU
-				rfwren, mwren, // Wr Enables of the regfile and memory
-				alusrc, mtoreg, regdst, // Multiplexer selects
-				jump, rgimm, // Jump and regor immu
-				jalc, bnec, beqc, buttcheek; // JAL, BNE, and BEQ command checks
+				reg_we, meme_we, // Wr Enables of the regfile and memory
+        pc_we, ir_we, a_we, b_we, ben,// d-flip flop enables
+				memin, immer, regin, dst, alusrca, alusrcb, bneBEQ, PCSrc; // Multiplexer selects
+
 	 wire [2:0] aluOps; // ALU Operations
 	 wire [4:0] rs, rd, rt, rw; // Regfile read addresses
-	 // dA -> from regfile to: ALU
-	 // dB -> from regfile to: mux to ALU, dIn of memory
-	 // dW -> from MemToReg mux to: dW of regfile
-	 // imm32 -> from sign extender to: mux to ALU
-	 // tdB -> from mux to ALU to: ALU
-	 // aluO -> from ALU to: Addr of memory, MemToReg mux
-	 // dOut -> from dOut of memory to: MemToReg mux
+	 // dA -> from regfile to: A reg
+	 // dB -> from regfile to: A reg
+   // dAheld -> from A reg to: ALU
+   // dBheld -> from B reg : ALU
+   // pcout -> output of PC
+   // memout -> output of memory
+   // irout -> output of IR
+   // decoder2concat -> decode logic to concat
+   // concat_out -> output of concat
+   // mdrout -> output of MDR
+   // alu_out -> output of ALU, before ALU_reg
+   // alu_reg -> output of alu_reg
+   // ben_out -> output of second register (with Ben enable)
+   // pcSrcout -> output of PCSrc
+   // pcSrcB4 -> input into PCSrc
+
 	 wire [15:0] imm16;
 	 wire [25:0] jAddress;
-	 wire [31:0] dA, dB, dW, imm32, tdB, tdW, aluO, dOut, butt;
-	 wire [31:0] pci, pco, pcjal; // pci -> instruction, pco -> command
+	 wire [31:0] dA, dB, A_input, B_input, dAheld, dBheld, shifted, pcout, memout, irout, decoder2concat,
+    concat_out, mdrout,alu_out,alu_reg,ben_out,pcSrcout, pcSrcB4, mdr_or_alu, bnechosen, immer16out;
+	 //wire [31:0] pci, pco, pcjal; // pci -> instruction, pco -> command
 
-	 programcounter instructionfetch(.pcaddress(pci),
-																	 .Reg_31(pcjal),
-																	 .branchaddress(imm16),
-																	 .jumpaddress(jAddress),
-																	 .jump(jump),
-																	 .beq(zero),
-																	 .bne(nzero),
-																	 .regorimm(rgimm),
-																	 .Reg_rs(dA),
-																	 .clk(clk),
-																	 .reset(reset));
-	 InstructionparselLUT lut(.rs(rs),
-														.rd(rd),
-														.rt(rt),
-														.imm(imm16),
-														.address(jAddress),
-														.alucntrl(aluOps),
-														.regwr(rfwren),
-														.memwr(mwren),
-														.regdst(regdst),
-														.alusrc(alusrc),
-														.memtoreg(mtoreg),
-														.jump(jump),
-														.regorimmu(rgimm),
-														.jayall(jalc),
-														.bne(bnec),
-														.beq(beqc),
-                            .buttcheek(buttcheek),
-														.instruction(pco));
-	 ALU alu(.result(aluO),
+
+	 ALU alu(.result(alu_out),
 					 .carryout(cout),
 					 .zero(zim),
 					 .overflow(oflow),
-					 .operandA(dA),
-					 .operandB(tdB),
+					 .operandA(dAheld),
+					 .operandB(dBheld),
 					 .command(aluOps));
-	 memory memo(.PC(pci),
-							.instruction(pco),
-							.data_out(dOut),
-							.data_in(dB),
+
+	 memory memo(.PC(pci), //doesnt belong
+							.instruction(pco), // doesnt belong
+							.data_out(memout),
+							.data_in(dBheld),
 							.clk(clk),
-							.data_addr(butt),
-							.wr_en(mwren));
+							.data_addr(memin),
+							.wr_en(mem_we));
 	 regfile regf(.ReadData1(dA),
 								.ReadData2(dB),
-								.WriteData(tdW),
+								.WriteData(mdr_or_alu),
 								.ReadRegister1(rs),
 								.ReadRegister2(rt),
 								.WriteRegister(rw),
-								.RegWrite(rfwren),
+								.RegWrite(reg_we),
 								.Clk(clk));
+
+// RegDst mux
 	 muxnto1byn #(5) rdstmux(.out(rw),
-													 .address(regdst),
+													 .address(dst),
 													 .input0(rd),
-													 .input1(rt)); // RegDst mux
-	 muxnto1byn #(32) mtrmux(.out(dW),
-													 .address(mtoreg),
-													 .input0(aluO),
-													 .input1(dOut)); // MemToReg mux
-	 muxnto1byn #(32) alumux(.out(tdB),
-													 .address(alusrc),
-													 .input1(dB),
-													 .input0(imm32)); // ALUSrc mux
-	 muxnto1byn #(32) jalmux(.out(tdW),
-													 .address(jalc),
-													 .input0(dW),
-													 .input1(pcjal)); // JAL/PC mux
-   muxnto1byn #(32) memmux(.out(butt),
+													 .input1(rt));
+// MemToReg mux
+	 muxnto1byn #(32) mdrmux(.out(mdr_or_alu),
+													 .address(regin),
+													 .input0(mdrout),
+													 .input1(alu_reg));
+//BNE/BEQ mux
+   muxnto1byn #(32) bnebeqmux(.out(bnechosen),
+													 .address(bneBEQ),
+													 .input0(zim), // beq
+													 .input1(nzim)); // bne
+//  mux for PCSrc input
+   muxnto1byn #(32) bnebeqmux(.out(pcSrcB4),
+													 .address(bnechosen),
+													 .input0(ben_out), // beq
+													 .input1(alu_reg)); // bne
+// immediate 16 mux
+   muxnto1byn #(32) immermux(.out(immer16out),
                            .address(buttcheek),
-                           .input0(aluO),
-                           .input1(32'b00000000000000000010000000000000)); // JAL/PC mux
-	 signextend16 immse(.in(imm16),
+                           .input0(imm16),
+                           .input1(32'b0)); // immediate16 or 0
+// signextend
+   signextend16 immse(.in(imm16),
 											.extended(imm32));
-	 and zerosig(zero, beqc, zim);
+
+// concat
+
+// << 2
+// ALU reg
+regboi ALUreg(
+  .in(alu_out),
+  .out(alu_reg)
+  );
+// Benny
+regboi Bennyreg(
+  .in(alu_reg),
+  .out(ben_out)
+  );
+// PC
+regboi PCreg(
+  .in(alu_reg),
+  .out(ben_out)
+  );
+// MDR reg
+regboi MDRreg(
+  .in(memout),
+  .out(mdrout)
+  );
+// IR reg
+regboi IRreg(
+  .in(memout),
+  .out(irout)
+  );
+// A reg
+regboi regA(
+  .in(dA),
+  .out(dAheld)
+  );
+// B reg
+regboi regB(
+  .in(dB),
+  .out(dBheld)
+  );
+// ALU A 4 input mux
+Multiplexer4 ALU_A(
+  .out(A_input),
+  .address0(), .address1(),
+  .in0(pcout), .in1(dAheld), .in2(ben_out), .in3(32'b0)
+  );
+// ALU B 4 input mux
+Multiplexer4 ALU_B(
+  .out(B_input),
+  .address0(), .address1(),
+  .in0(shifted), .in1(imm32), .in2(dBheld), .in3(32'd4)
+  );
+// PCSrc 4 input mux
+Multiplexer4 pcsrcboi(
+  .out(pcSrcout),
+  .address0(), .address1(),
+  .in0(pcSrcB4), .in1(concat_out), .in2(alu_out), .in3(alu_reg)
+  );
+
+
+
 	 not nzimsig(nzim, zim);
-	 and nzerosig(nzero, bnec, nzim);
+
 endmodule
