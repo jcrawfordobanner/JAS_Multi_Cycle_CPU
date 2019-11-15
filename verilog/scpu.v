@@ -5,6 +5,7 @@
 `include "IFU.v"
 `include "register.v"
 `include "mux4.v"
+`include "LUT_biggie.v"
 
 
 module SCPU
