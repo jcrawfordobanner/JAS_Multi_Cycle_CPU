@@ -6,7 +6,7 @@
 `include "register.v"
 `include "mux4.v"
 `include "LUT_biggie.v"
-
+`include "concat.v"
 
 module SCPU
 (
@@ -19,7 +19,8 @@ module SCPU
 				memin, immer, regin, dst, alusrca, alusrcb, bneBEQ, PCSrc; // Multiplexer selects
 
 	 wire [2:0] aluOps; // ALU Operations
-	 wire [4:0] rs, rd, rt, rw; // Regfile read addresses
+	 wire [4:0] rs, rd, rt, rw, shamt; // Regfile read addresses
+   wire [5:0] funct;
 	 // dA -> from regfile to: A reg
 	 // dB -> from regfile to: A reg
    // dAheld -> from A reg to: ALU
@@ -38,7 +39,7 @@ module SCPU
 
 	 wire [15:0] imm16;
 	 wire [25:0] jAddress;
-	 wire [31:0] dA, dB, A_input, B_input, dAheld, dBheld, shifted, pcout, memout, irout, decoder2concat,
+	 wire [31:0] dA, dB, A_input, B_input, dAheld, dBheld, shifted, pcout, memout, irout,
     concat_out, mdrout,alu_out,alu_reg,ben_out,pcSrcout, pcSrcB4, mdr_or_alu, bnechosen, immer16out;
 	 //wire [31:0] pci, pco, pcjal; // pci -> instruction, pco -> command
 
@@ -58,6 +59,7 @@ module SCPU
 							.clk(clk),
 							.data_addr(memin),
 							.wr_en(mem_we));
+
 	 regfile regf(.ReadData1(dA),
 								.ReadData2(dB),
 								.WriteData(mdr_or_alu),
@@ -66,6 +68,34 @@ module SCPU
 								.WriteRegister(rw),
 								.RegWrite(reg_we),
 								.Clk(clk));
+
+  InstructionparselLUT looker (.rs(rs),
+                               .rt(rt),
+                               .rd(rd),
+                               .shamt(shamt),
+                               .funct(funct),
+                               .imm(imm16),
+                               .address(jAddress),
+                               .instruction(pco),
+                               .state(),
+                               .PC_WE(pc_we),
+                               .MemIn(memin),
+                               .Mem_WE(mem_we),
+                               .IR_We(ir_we),
+                               .Dst(dst),
+                               .RegIn(regin),
+                               .Immer(immer),
+                               .Reg_WE(reg_we),
+                               .A_WE(a_we),
+                               .B_WE(b_we),
+                               .ALUSrcA(alusrca),
+                               .ALUSrcB(alusrcb),
+                               .ALUOp(aluOps),
+                               .PCSrc(PCSrc),
+                               .jal(),
+                               .BEN(ben),
+                               .BEQBNE(bneBEQ)
+                              );
 
 // RegDst mux
 	 muxnto1byn #(5) rdstmux(.out(rw),
@@ -97,8 +127,12 @@ module SCPU
 											.extended(imm32));
 
 // concat
-
+.concatinated(concat_out));
+  concatinate concat(.notconcatinated(jAddress),
+                     .PC(pcout));
 // << 2
+  shift shifter(.notshifted(imm32)
+              .shifted(shifted));
 // ALU reg
 regboi ALUreg(
   .in(alu_out),
