@@ -13,7 +13,7 @@ module MCPU
  input reset
 );
 	 wire zim, zero, nzim, nzero, cout, oflow, // 1-bit outputs of the ALU
-				reg_we, meme_we, // Wr Enables of the regfile and memory
+				reg_we, mem_we,// Wr Enables of the regfile and memory
         pc_we, ir_we, a_we, b_we, ben,// d-flip flop enables
 				memin, immer, regin, dst, alusrca, alusrcb, bneBEQ, PCSrc; // Multiplexer selects
 
@@ -38,7 +38,7 @@ module MCPU
 
 	 wire [15:0] imm16;
 	 wire [25:0] jAddress;
-	 wire [31:0] dA, dB, A_input, B_input, dAheld, dBheld, shifted, pcout, memout, irout,
+	 wire [31:0] dA, dB, A_input, B_input, dAheld, dBheld, shifted, pcout, memout, irout, imm32
     concat_out, mdrout,alu_out,alu_reg,ben_out,pcSrcout, pcSrcB4, mdr_or_alu, bnechosen, immer16out,pci, pco,pcjal;
 	 //wire [31:0] pci, pco, pcjal; // pci -> instruction, pco -> command
 
@@ -118,7 +118,7 @@ module MCPU
 													 .input1(alu_reg)); // bne
 // immediate 16 mux
    muxnto1byn #(32) immermux(.out(immer16out),
-                           .address(buttcheek),
+                           .address(immer),
                            .input0(imm16),
                            .input1(32'b0)); // immediate16 or 0
 // signextend
