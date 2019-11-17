@@ -15,8 +15,8 @@ module MCPU
 	 wire  zim, zero, nzim, nzero, cout, oflow, // 1-bit outputs of the ALU
 				 reg_we, mem_we,// Wr Enables of the regfile and memory
          pc_we, ir_we, a_we, b_we, ben,// d-flip flop enables
-				 memin, immer, regin, dst, alusrca, alusrcb, bneBEQ, PCSrc; // Multiplexer selects
-
+				 memin, immer, regin, dst,bneBEQ; // Multiplexer selects
+	 wire [1:0]  alusrca, alusrcb,PCSrc; // two bit instruction for 4 input mux
 	 wire [2:0] aluOps; // ALU Operations
 	 wire [4:0] rs, rd, rt, rw, shamt; // Regfile read addresses
    wire [5:0] funct;
@@ -107,7 +107,7 @@ module MCPU
 													 .input0(mdrout),
 													 .input1(alu_reg));
 	 //BNE/BEQ mux
-   muxnto1byn #(32) bnebeqmux(.out(bnechosen),
+   muxnto1byn #(1) bnebeqmux(.out(bnechosen),
 															.address(bneBEQ),
 															.input0(zim), // beq
 															.input1(nzim)); // bne
@@ -127,7 +127,7 @@ module MCPU
 
 	 // concat
    concatinate concat(.notconcatinated(jAddress),
-											.PC(pcout));
+											.PC(pcout), .concatinated(concat_out));
 	 // << 2
    shift shifter(.notshifted(imm32),
 								 .shifted(shifted));
@@ -191,7 +191,6 @@ module MCPU
 																	 .address0(), .address1(),
 																	 .in0(pcSrcB4), .in1(concat_out), .in2(alu_out), .in3(alu_reg)
 																	 );
-
 
 
 	 not nzimsig(nzim, zim);
