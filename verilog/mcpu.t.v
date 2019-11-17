@@ -1,4 +1,4 @@
-`include "scpu.v"
+`include "mcpu.v"
 
 //------------------------------------------------------------------------
 // All out CPU test bench
@@ -14,7 +14,7 @@ module cpu_test ();
    always #10 clk = !clk;
 
    // Instantiate fake CPU
-   mcpu cpu(.clk(clk), .reset(reset));
+   MCPU cpu(.clk(clk), .reset(reset));
 
    // Filenames for memory images and VCD dump file
    reg [1023:0] mem_text_fn;

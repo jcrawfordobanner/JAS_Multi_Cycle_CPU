@@ -14,7 +14,7 @@ DATAMEMDUMP := $(PROGRAM).data.hex
 ## Verilog settings
 
 # Top-level module/filename (minus .v/.t.v extension)
-TOPLEVEL := scpu
+TOPLEVEL := mcpu
 
 # All circuits included by the toplevel $(TOPLEVEL).t.v
-CIRCUITS := $(TOPLEVEL).v IFU.v memory.v LUT.v alu.v regfile.v
+CIRCUITS := $(TOPLEVEL).v IFU.v memory.v alu.v regfile.v register.v LUT_biggie.v mux4.v concat.v
