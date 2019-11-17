@@ -126,7 +126,6 @@ module MCPU
 											.extended(imm32));
 
 // concat
-.concatinated(concat_out));
   concatinate concat(.notconcatinated(jAddress),
                      .PC(pcout));
 // << 2
@@ -168,19 +167,19 @@ regboi regB(
   .out(dBheld)
   );
 // ALU A 4 input mux
-Multiplexer4 ALU_A(
+Multiplexer4doubletime ALU_A(
   .out(A_input),
   .address0(), .address1(),
   .in0(pcout), .in1(dAheld), .in2(ben_out), .in3(32'b0)
   );
 // ALU B 4 input mux
-Multiplexer4 ALU_B(
+Multiplexer4doubletime ALU_B(
   .out(B_input),
   .address0(), .address1(),
   .in0(shifted), .in1(imm32), .in2(dBheld), .in3(32'd4)
   );
 // PCSrc 4 input mux
-Multiplexer4 pcsrcboi(
+Multiplexer4doubletime pcsrcboi(
   .out(pcSrcout),
   .address0(), .address1(),
   .in0(pcSrcB4), .in1(concat_out), .in2(alu_out), .in3(alu_reg)

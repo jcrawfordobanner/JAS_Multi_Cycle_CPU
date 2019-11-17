@@ -1,4 +1,4 @@
-module Multiplexer4
+module Multiplexer4doubletime
 (
     output out,
     input address0, address1,
