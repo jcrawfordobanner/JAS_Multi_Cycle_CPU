@@ -39,7 +39,7 @@ module MCPU
 	 wire [15:0] imm16;
 	 wire [25:0] jAddress;
 	 wire [31:0] dA, dB, A_input, B_input, dAheld, dBheld, shifted, pcout, memout, irout,
-    concat_out, mdrout,alu_out,alu_reg,ben_out,pcSrcout, pcSrcB4, mdr_or_alu, bnechosen, immer16out;
+    concat_out, mdrout,alu_out,alu_reg,ben_out,pcSrcout, pcSrcB4, mdr_or_alu, bnechosen, immer16out,pci, pco,pcjal;
 	 //wire [31:0] pci, pco, pcjal; // pci -> instruction, pco -> command
 
 

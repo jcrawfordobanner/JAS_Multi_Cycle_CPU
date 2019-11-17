@@ -101,7 +101,7 @@ output reg BEQBNE
                 `WB: begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=1; Reg_WE=1; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd3; jal=0; BEN=0; BEQBNE=0; end
               endcase
              end
-        `tSLT: begin alucntrl=`iSLT; regwr=1; memwr=0; regdst=0; alusrc=1; memtoreg=0; jump=0; regorimmu=0; jayall=0; bne=0; beq=0; buttcheek=1; end
+        //`tSLT: begin alucntrl=`iSLT; regwr=1; memwr=0; regdst=0; alusrc=1; memtoreg=0; jump=0; regorimmu=0; jayall=0; bne=0; beq=0; buttcheek=1; end
         `tSLT: begin
               case(state)
                 `ID: begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=1; Immer=1; Reg_WE=0; A_WE=1; B_WE=1; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; end
