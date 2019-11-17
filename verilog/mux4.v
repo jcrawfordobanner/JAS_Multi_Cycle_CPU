@@ -1,8 +1,8 @@
 module Multiplexer4doubletime
 (
-    output out,
+    output [31:0] out,
     input address0, address1,
-    input in0, in1, in2, in3
+    input [31:0] in0, in1, in2, in3
 );
 wire selUp;
 wire selDown;
