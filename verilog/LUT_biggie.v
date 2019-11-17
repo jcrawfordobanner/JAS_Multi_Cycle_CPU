@@ -18,11 +18,11 @@
 `define iXOR 3'b010
 `define iSLT 3'b011
 
-`define ID 3'b0
-`define IF 3'b1
-`define EXEC 3'b2
-`define MEM 3'b3
-`define WB 3'b4
+`define ID 3'd0
+`define IF 3'd1
+`define EXEC 3'd2
+`define MEM 3'd3
+`define WB 3'd4
 
 module InstructionparselLUT
 (
