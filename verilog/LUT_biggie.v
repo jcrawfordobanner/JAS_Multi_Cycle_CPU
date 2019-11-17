@@ -18,6 +18,12 @@
 `define iXOR 3'b010
 `define iSLT 3'b011
 
+`define ID 3'b0
+`define IF 3'b1
+`define EXEC 3'b2
+`define MEM 3'b3
+`define WB 3'b4
+
 module InstructionparselLUT
 (
 output [4:0] rs, // Instruction
@@ -72,6 +78,7 @@ output BEQBNE
             `ID: begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=1; RegIn=0; Immer=1; Reg_WE=0; A_WE=0; B_WE=1; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; end
             `EXEC: begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=1; RegIn=0; Immer=1; Reg_WE=0; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd1; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; end
             `MEM: begin PC_WE=0; MemIn=1; Mem_WE=1; IR_WE=0; Dst=1; RegIn=0; Immer=1; Reg_WE=0; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; end
+            endcase
          end
     `J: begin
           case(state)
