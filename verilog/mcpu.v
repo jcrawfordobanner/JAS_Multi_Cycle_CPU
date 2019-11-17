@@ -112,7 +112,7 @@ module MCPU
 													 .input0(zim), // beq
 													 .input1(nzim)); // bne
 //  mux for PCSrc input
-   muxnto1byn #(32) bnebeqmux(.out(pcSrcB4),
+   muxnto1byn #(32) pcsrc(.out(pcSrcB4),
 													 .address(bnechosen),
 													 .input0(ben_out), // beq
 													 .input1(alu_reg)); // bne
@@ -129,7 +129,7 @@ module MCPU
   concatinate concat(.notconcatinated(jAddress),
                      .PC(pcout));
 // << 2
-  shift shifter(.notshifted(imm32)
+  shift shifter(.notshifted(imm32),
               .shifted(shifted));
 // ALU reg
 regboi ALUreg(

@@ -35,23 +35,23 @@ output [15:0] imm, // immediate value
 output [25:0] address, // mux address
 input [31:0] instruction, // The instruction itself, from assembly
 input [2:0] state, // The instruction itself, from assembly
-output PC_WE,
-output MemIn,
-output Mem_WE,
-output IR_WE,
-output Dst,
-output RegIn,
-output Immer,
-output Reg_WE,
-output A_WE,
-output B_WE,
-output [1:0] ALUSrcA,
-output [1:0] ALUSrcB,
-output [1:0]ALUOp,
-output [1:0] PCSrc,
-output jal,
-output BEN,
-output BEQBNE
+output reg PC_WE,
+output reg MemIn,
+output reg Mem_WE,
+output reg IR_WE,
+output reg Dst,
+output reg RegIn,
+output reg Immer,
+output reg Reg_WE,
+output reg A_WE,
+output reg B_WE,
+output reg [1:0] ALUSrcA,
+output reg [1:0] ALUSrcB,
+output reg [1:0]ALUOp,
+output reg [1:0] PCSrc,
+output reg jal,
+output reg BEN,
+output reg BEQBNE
 );
   wire [4:0] linker;
   assign linker = 5'd31;
