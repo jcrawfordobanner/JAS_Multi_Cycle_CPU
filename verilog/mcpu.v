@@ -3,7 +3,7 @@
 `include "memory.v"
 `include "IFU.v"
 `include "register.v"
-`include "mux4.v"
+//`include "mux4.v"
 `include "LUT_biggie.v"
 `include "concat.v"
 
@@ -174,19 +174,19 @@ module MCPU
 							 .clk(clk)
 							 );
 	 // ALU A 4 input mux
-	 Multiplexer4doubletime ALU_A(
+	 Multiplexer4 ALU_A(
 																.out(A_input),
 																.address0(), .address1(),
 																.in0(pcout), .in1(dAheld), .in2(ben_out), .in3(32'b0)
 																);
 	 // ALU B 4 input mux
-	 Multiplexer4doubletime ALU_B(
+	 Multiplexer4 ALU_B(
 																.out(B_input),
 																.address0(), .address1(),
 																.in0(shifted), .in1(imm32), .in2(dBheld), .in3(32'd4)
 																);
 	 // PCSrc 4 input mux
-	 Multiplexer4doubletime pcsrcboi(
+	 Multiplexer4 pcsrcboi(
 																	 .out(pcSrcout),
 																	 .address0(), .address1(),
 																	 .in0(pcSrcB4), .in1(concat_out), .in2(alu_out), .in3(alu_reg)
