@@ -118,6 +118,11 @@ module MCPU
 													.address(bnechosen),
 													.input0(ben_out), // beq
 													.input1(alu_reg)); // bne
+	// Jal mux
+   muxnto1byn #(32) jalmux(.out(dw),
+													.address(jal),
+													.input0(irout),
+													.input1(31'd31));
 	 // immediate 16 mux
    muxnto1byn #(16) immermux(.out(immer16out),
 														 .address(immer),
