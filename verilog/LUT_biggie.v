@@ -34,7 +34,7 @@ output [4:0] rt, // Reg[rt]
 output [15:0] imm, // immediate value
 output [25:0] address, // mux address
 input [31:0] instruction, // The instruction itself, from assembly
-input [2:0] state, // The instruction itself, from assembly
+input [5:0] state, // The instruction itself, from assembly
 output reg PC_WE,
 output reg MemIn,
 output reg Mem_WE,
@@ -51,7 +51,8 @@ output reg [2:0]ALUOp,
 output reg [1:0] PCSrc,
 output reg jal,
 output reg BEN,
-output reg BEQBNE
+output reg BEQBNE,
+output reg [5:0] newstatus
 );
   wire [4:0] linker;
   assign linker = 5'd31;
@@ -67,6 +68,7 @@ output reg BEQBNE
     case(instruction[31:26])
     `LW: begin
           case(state)
+            `IF: begin PC_WE=1; MemIn=0; Mem_WE=0; IR_WE=1; Dst=0; RegIn=0; Immer=1; Reg_WE=0; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd3; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; end
             `ID: begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=1; RegIn=0; Immer=1; Reg_WE=0; A_WE=1; B_WE=1; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; end
             `EXEC: begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=1; RegIn=0; Immer=1; Reg_WE=0; A_WE=0; B_WE=0; ALUSrcA=2'd1; ALUSrcB=2'd1; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; end
             `MEM: begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=1; RegIn=0; Immer=1; Reg_WE=0; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; end
@@ -75,6 +77,7 @@ output reg BEQBNE
          end
     `SW: begin
           case(state)
+            `IF: begin PC_WE=1; MemIn=0; Mem_WE=0; IR_WE=1; Dst=0; RegIn=0; Immer=1; Reg_WE=0; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd3; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; end
             `ID: begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=1; RegIn=0; Immer=1; Reg_WE=0; A_WE=0; B_WE=1; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; end
             `EXEC: begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=1; RegIn=0; Immer=1; Reg_WE=0; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd1; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; end
             `MEM: begin PC_WE=0; MemIn=1; Mem_WE=1; IR_WE=0; Dst=1; RegIn=0; Immer=1; Reg_WE=0; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; end
@@ -82,6 +85,7 @@ output reg BEQBNE
          end
     `J: begin
           case(state)
+            `IF: begin PC_WE=1; MemIn=0; Mem_WE=0; IR_WE=1; Dst=0; RegIn=0; Immer=1; Reg_WE=0; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd3; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; end
             `ID: begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=1; Reg_WE=0; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd1; jal=0; BEN=0; BEQBNE=0; end
           endcase
          end
@@ -89,6 +93,7 @@ output reg BEQBNE
       case(instruction[5:0])
         `tADD: begin
               case(state)
+                `IF: begin PC_WE=1; MemIn=0; Mem_WE=0; IR_WE=1; Dst=0; RegIn=0; Immer=1; Reg_WE=0; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd3; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; end
                 `ID: begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=1; Immer=1; Reg_WE=0; A_WE=1; B_WE=1; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; end
                 `EXEC: begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=1; Reg_WE=0; A_WE=1; B_WE=1; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; end
                 `WB: begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=1; Reg_WE=1; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd3; jal=0; BEN=0; BEQBNE=0; end
@@ -96,6 +101,7 @@ output reg BEQBNE
              end
         `tSUB: begin
               case(state)
+                `IF: begin PC_WE=1; MemIn=0; Mem_WE=0; IR_WE=1; Dst=0; RegIn=0; Immer=1; Reg_WE=0; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd3; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; end
                 `ID: begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=1; Immer=1; Reg_WE=0; A_WE=1; B_WE=1; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; end
                 `EXEC: begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=1; Reg_WE=0; A_WE=1; B_WE=1; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; end
                 `WB: begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=1; Reg_WE=1; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd3; jal=0; BEN=0; BEQBNE=0; end
@@ -104,6 +110,7 @@ output reg BEQBNE
         //`tSLT: begin alucntrl=`iSLT; regwr=1; memwr=0; regdst=0; alusrc=1; memtoreg=0; jump=0; regorimmu=0; jayall=0; bne=0; beq=0; buttcheek=1; end
         `tSLT: begin
               case(state)
+                `IF: begin PC_WE=1; MemIn=0; Mem_WE=0; IR_WE=1; Dst=0; RegIn=0; Immer=1; Reg_WE=0; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd3; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; end
                 `ID: begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=1; Immer=1; Reg_WE=0; A_WE=1; B_WE=1; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; end
                 `EXEC: begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=1; Reg_WE=0; A_WE=1; B_WE=1; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; end
                 `WB: begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=1; Reg_WE=1; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd3; jal=0; BEN=0; BEQBNE=0; end
@@ -111,6 +118,7 @@ output reg BEQBNE
              end
         `tJR: begin
               case(state)
+                `IF: begin PC_WE=1; MemIn=0; Mem_WE=0; IR_WE=1; Dst=0; RegIn=0; Immer=1; Reg_WE=0; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd3; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; end
                 `ID: begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=1; Immer=0; Reg_WE=0; A_WE=1; B_WE=1; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; end
                 `EXEC: begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=0; Reg_WE=0; A_WE=0; B_WE=0; ALUSrcA=2'd1; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; end
               endcase
@@ -119,21 +127,24 @@ output reg BEQBNE
     end
     `JAL: begin
           case(state)
+            `IF: begin PC_WE=1; MemIn=0; Mem_WE=0; IR_WE=1; Dst=0; RegIn=0; Immer=1; Reg_WE=0; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd3; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; end
             `ID: begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=1; RegIn=0; Immer=1; Reg_WE=0; A_WE=1; B_WE=1; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd2; jal=1; BEN=0; BEQBNE=0; end
             `EXEC: begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=1; Reg_WE=0; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd2; jal=1; BEN=0; BEQBNE=0; end
-            `MEM: begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=1; Immer=1; Reg_WE=1; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd1; jal=1; BEN=0; BEQBNE=0; end
+            `WB: begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=1; Immer=1; Reg_WE=1; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd1; jal=1; BEN=0; BEQBNE=0; end
           endcase
          end
     `BEQ: begin
           case(state)
+            `IF: begin PC_WE=1; MemIn=0; Mem_WE=0; IR_WE=1; Dst=0; RegIn=0; Immer=1; Reg_WE=0; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd3; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; end
             `ID: begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=1; Reg_WE=0; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd3; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; end
             `EXEC: begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=1; Reg_WE=0; A_WE=1; B_WE=1; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; end
             `MEM: begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=1; Reg_WE=0; A_WE=0; B_WE=0; ALUSrcA=2'd2; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=1; BEQBNE=0; end
             `WB: begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=1; Reg_WE=0; A_WE=0; B_WE=0; ALUSrcA=2'd1; ALUSrcB=2'd2; ALUOp=`iSUB; PCSrc=2'd0; jal=0; BEN=0; BEQBNE=0; end
           endcase
          end
-    `BEQ: begin
+    `BNE: begin
           case(state)
+            `IF: begin PC_WE=1; MemIn=0; Mem_WE=0; IR_WE=1; Dst=0; RegIn=0; Immer=1; Reg_WE=0; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd3; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; end
             `ID: begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=1; Reg_WE=0; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd3; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; end
             `EXEC: begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=1; Reg_WE=0; A_WE=1; B_WE=1; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; end
             `MEM: begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=1; Reg_WE=0; A_WE=0; B_WE=0; ALUSrcA=2'd2; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=1; BEQBNE=1; end
@@ -142,6 +153,7 @@ output reg BEQBNE
          end
     `XORI: begin
           case(state)
+            `IF: begin PC_WE=1; MemIn=0; Mem_WE=0; IR_WE=1; Dst=0; RegIn=0; Immer=1; Reg_WE=0; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd3; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; end
             `ID: begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=1; Immer=1; Reg_WE=0; A_WE=1; B_WE=1; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; end
             `EXEC: begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=1; RegIn=0; Immer=1; Reg_WE=0; A_WE=1; B_WE=1; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iXOR; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; end
             `WB: begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=1; Reg_WE=1; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd3; jal=0; BEN=0; BEQBNE=0; end
@@ -149,11 +161,118 @@ output reg BEQBNE
          end
     `ADDI: begin
           case(state)
+            `IF: begin PC_WE=1; MemIn=0; Mem_WE=0; IR_WE=1; Dst=0; RegIn=0; Immer=1; Reg_WE=0; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd3; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; end
             `ID: begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=1; Immer=1; Reg_WE=0; A_WE=1; B_WE=1; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; end
             `EXEC: begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=1; RegIn=0; Immer=1; Reg_WE=0; A_WE=1; B_WE=1; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; end
             `WB: begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=1; Reg_WE=1; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd3; jal=0; BEN=0; BEQBNE=0; end
           endcase
          end
+    endcase
+  end
+endmodule
+
+always @(posedge clk) begin
+    case(instruction[31:26])
+      `LW: begin
+        case(state)
+          `IF: begin newstatus=`ID; end
+          `ID: begin newstatus=`EXEC; end
+          `EXEC: begin newstatus=`MEM; end
+          `MEM: begin newstatus=`WB; end
+          `MEM: begin newstatus=`IF; end
+        endcase
+      end
+      `SW: begin
+        case(state)
+          `IF: begin newstatus=`ID; end
+          `ID: begin newstatus=`EXEC; end
+          `EXEC: begin newstatus=`MEM; end
+          `MEM: begin newstatus=`IF; end
+        endcase
+      end
+      `J: begin
+        case(state)
+          `IF: begin newstatus=`ID; end
+          `ID: begin newstatus=`IF; end
+        endcase
+      end
+      `RTYPE: begin
+        case(instruction[5:0])
+          `tADD: begin
+            case(state)
+              `IF: begin newstatus=`ID; end
+              `ID: begin newstatus=`EXEC; end
+              `EXEC: begin newstatus=`WB; end
+              `WB: begin newstatus=`IF; end
+            endcase
+          end
+          `tSUB: begin
+            case(state)
+              `IF: begin newstatus=`ID; end
+              `ID: begin newstatus=`EXEC; end
+              `EXEC: begin newstatus=`WB; end
+              `WB: begin newstatus=`IF; end
+            endcase
+          end
+          `tSLT: begin
+            case(state)
+              `IF: begin newstatus=`ID; end
+              `ID: begin newstatus=`EXEC; end
+              `EXEC: begin newstatus=`WB; end
+              `WB: begin newstatus=`IF; end
+            endcase
+          end
+          `tJR: begin
+            case(state)
+              `IF: begin newstatus=`ID; end
+              `ID: begin newstatus=`EXEC; end
+              `EXEC: begin newstatus=`IF; end
+            endcase
+          end
+        endcase
+      end
+      `JAL: begin
+        case(state)
+          `IF: begin newstatus=`ID; end
+          `ID: begin newstatus=`EXEC; end
+          `EXEC: begin newstatus=`WB; end
+          `WB: begin newstatus=`IF; end
+        endcase
+      end
+      `BEQ: begin
+        case(state)
+          `IF: begin newstatus=`ID; end
+          `ID: begin newstatus=`EXEC; end
+          `EXEC: begin newstatus=`MEM; end
+          `MEM: begin newstatus=`WB; end
+          `WB: begin newstatus=`IF; end
+        endcase
+      end
+      `BNE: begin
+        case(state)
+          `IF: begin newstatus=`ID; end
+          `ID: begin newstatus=`EXEC; end
+          `EXEC: begin newstatus=`MEM; end
+          `MEM: begin newstatus=`WB; end
+          `WB: begin newstatus=`IF; end
+        endcase
+      end
+      `XORI: begin
+        case(state)
+          `IF: begin newstatus=`ID; end
+          `ID: begin newstatus=`EXEC; end
+          `EXEC: begin newstatus=`WB; end
+          `WB: begin newstatus=`IF; end
+        endcase
+      end
+      `ADDI: begin
+        case(state)
+          `IF: begin newstatus=`ID; end
+          `ID: begin newstatus=`EXEC; end
+          `EXEC: begin newstatus=`WB; end
+          `WB: begin newstatus=`IF; end
+        endcase
+      end
     endcase
   end
 endmodule

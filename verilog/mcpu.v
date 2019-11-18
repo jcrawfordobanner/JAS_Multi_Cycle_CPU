@@ -19,7 +19,7 @@ module MCPU
 	 wire [1:0]  alusrca, alusrcb,PCSrc; // two bit instruction for 4 input mux
 	 wire [2:0] aluOps; // ALU Operations
 	 wire [4:0] rs, rd, rt, rw, shamt; // Regfile read addresses
-   wire [5:0] funct;
+   wire [5:0] funct,status,currently;
 	 // dA -> from regfile to: A reg
 	 // dB -> from regfile to: A reg
    // dAheld -> from A reg to: ALU
@@ -76,7 +76,7 @@ module MCPU
 																.imm(imm16),
 																.address(jAddress),
 																.instruction(pco),
-																.state(),
+																.state(currently),
 																.PC_WE(pc_we),
 																.MemIn(memin),
 																.Mem_WE(mem_we),
@@ -93,7 +93,8 @@ module MCPU
 																.PCSrc(PCSrc),
 																.jal(),
 																.BEN(ben),
-																.BEQBNE(bneBEQ)
+																.BEQBNE(bneBEQ),
+																.newstatus(status)
 																);
 
 	 // RegDst mux
