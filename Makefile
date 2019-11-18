@@ -28,6 +28,6 @@ scope: $(WAVEFORM) $(WAVEOPTS)
 clean:
 	$(MAKE) -C asm clean
 	$(MAKE) -C verilog clean
-	rm -f $(WAVEFORM)
+	rm -f dumpfile.vcd
 
 .PHONY: scope clean
