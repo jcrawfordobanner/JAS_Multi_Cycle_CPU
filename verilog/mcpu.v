@@ -1,9 +1,10 @@
 `include "alu.v"
 `include "regfile.v"
 `include "memory.v"
-`include "IFU.v"
+//`include "IFUcomps/multiplexer.v"
+`include "comps/IFUcomps/signextend.v"
 `include "register.v"
-//`include "mux4.v"
+`include "mux4.v"
 `include "LUT_biggie.v"
 `include "concat.v"
 
@@ -15,7 +16,7 @@ module MCPU
 	 wire  zim, zero, nzim, nzero, cout, oflow, // 1-bit outputs of the ALU
 				 reg_we, mem_we,// Wr Enables of the regfile and memory
          pc_we, ir_we, a_we, b_we, ben,// d-flip flop enables
-				 memin, immer, regin, dst,bneBEQ; // Multiplexer selects
+				 memin, immer, regin, dst,bneBEQ, bnechosen; // Multiplexer selects
 	 wire [1:0]  alusrca, alusrcb,PCSrc; // two bit instruction for 4 input mux
 	 wire [2:0] aluOps; // ALU Operations
 	 wire [4:0] rs, rd, rt, rw, shamt; // Regfile read addresses
@@ -36,10 +37,10 @@ module MCPU
    // pcSrcout -> output of PCSrc
    // pcSrcB4 -> input into PCSrc
 
-	 wire [15:0] imm16;
+	 wire [15:0] imm16, immer16out;
 	 wire [25:0] jAddress;
-	 wire [31:0] dA, dB, A_input, B_input, dAheld, dBheld, shifted, pcout, memout, irout, imm32,
-							 concat_out, mdrout,alu_out,alu_reg,ben_out,pcSrcout, pcSrcB4, mdr_or_alu, bnechosen, immer16out,pci, pco,pcjal;
+	 wire [31:0] dA, dB, A_input, B_input, dAheld, dBheld, shifted, pcout, memout, irout, imm32, data_addr,
+							 concat_out, mdrout,alu_out,alu_reg,ben_out,pcSrcout, pcSrcB4, mdr_or_alu,pci, pco,pcjal;
 	 //wire [31:0] pci, pco, pcjal; // pci -> instruction, pco -> command
 
 
@@ -56,7 +57,7 @@ module MCPU
 							 .data_out(memout),
 							 .data_in(dBheld),
 							 .clk(clk),
-							 .data_addr(memin),
+							 .data_addr(data_addr),
 							 .wr_en(mem_we));
 
 	 regfile regf(.ReadData1(dA),
@@ -117,10 +118,10 @@ module MCPU
 													.input0(ben_out), // beq
 													.input1(alu_reg)); // bne
 	 // immediate 16 mux
-   muxnto1byn #(32) immermux(.out(immer16out),
+   muxnto1byn #(16) immermux(.out(immer16out),
 														 .address(immer),
 														 .input0(imm16),
-														 .input1(32'b0)); // immediate16 or 0
+														 .input1(16'b0)); // immediate16 or 0
 	 // signextend
    signextend16 immse(.in(imm16),
 											.extended(imm32));
@@ -138,16 +139,18 @@ module MCPU
 								 .clk(clk)
 								 );
 	 // Benny
-	 regboi Bennyreg(
-									 .in(alu_reg),
-									 .out(ben_out),
-									 .clk(clk)
+	 register32 Bennyreg(
+									 .d(alu_reg),
+									 .q(ben_out),
+									 .clk(clk),
+	 								.wrenable(ben)
 									 );
 	 // PC
-	 regboi PCreg(
-								.in(alu_reg),
-								.out(ben_out),
-								.clk(clk)
+	 register32 PCreg(
+								.d(pcSrcout),
+								.q(pcout),
+								.clk(clk),
+								.wrenable(pc_we)
 								);
 	 // MDR reg
 	 regboi MDRreg(
@@ -156,39 +159,47 @@ module MCPU
 								 .clk(clk)
 								 );
 	 // IR reg
-	 regboi IRreg(
-								.in(memout),
-								.out(irout),
-								.clk(clk)
+	 register32 IRreg(
+								.d(memout),
+								.q(irout),
+								.clk(clk),
+								.wrenable(ir_we)
 								);
 	 // A reg
-	 regboi regA(
-							 .in(dA),
-							 .out(dAheld),
-							 .clk(clk)
+	 register32 regA(
+							 .d(dA),
+							 .q(dAheld),
+							 .clk(clk),
+							 .wrenable(a_we)
 							 );
 	 // B reg
-	 regboi regB(
-							 .in(dB),
-							 .out(dBheld),
-							 .clk(clk)
+	 register32 regB(
+							 .d(dB),
+							 .q(dBheld),
+							 .clk(clk),
+							 .wrenable(b_we)
 							 );
+		// Memin mux
+		muxnto1byn #(32) MemInmux(.out(data_addr),
+																						.address(memin),
+																						.input0(pcout), .input1(alu_reg)
+																						);
 	 // ALU A 4 input mux
-	 Multiplexer4 ALU_A(
+	 Multiplexer4doubletime ALU_A(
 																.out(A_input),
-																.address0(), .address1(),
+																.address0(alusrca[0]), .address1(alusrca[1]),
 																.in0(pcout), .in1(dAheld), .in2(ben_out), .in3(32'b0)
 																);
 	 // ALU B 4 input mux
-	 Multiplexer4 ALU_B(
+	 Multiplexer4doubletime ALU_B(
 																.out(B_input),
-																.address0(), .address1(),
+																.address0(alusrcb[0]), .address1(alusrcb[1]),
 																.in0(shifted), .in1(imm32), .in2(dBheld), .in3(32'd4)
 																);
 	 // PCSrc 4 input mux
-	 Multiplexer4 pcsrcboi(
+	 Multiplexer4doubletime pcsrcboi(
 																	 .out(pcSrcout),
-																	 .address0(), .address1(),
+																	 .address0(PCSrc[0]), .address1(PCSrc[1]),
 																	 .in0(pcSrcB4), .in1(concat_out), .in2(alu_out), .in3(alu_reg)
 																	 );
 
