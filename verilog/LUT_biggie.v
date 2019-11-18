@@ -52,7 +52,8 @@ output reg [1:0] PCSrc,
 output reg jal,
 output reg BEN,
 output reg BEQBNE,
-output reg [5:0] newstatus
+output reg [5:0] newstatus,
+input clk
 );
   wire [4:0] linker;
   assign linker = 5'd31;
@@ -169,7 +170,6 @@ output reg [5:0] newstatus
          end
     endcase
   end
-endmodule
 
 always @(posedge clk) begin
     case(instruction[31:26])

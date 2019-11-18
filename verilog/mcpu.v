@@ -16,11 +16,11 @@ module MCPU
 	 wire  zim, zero, nzim, nzero, cout, oflow, // 1-bit outputs of the ALU
 				 reg_we, mem_we,// Wr Enables of the regfile and memory
          pc_we, ir_we, a_we, b_we, ben,// d-flip flop enables
-				 memin, immer, regin, dst,bneBEQ, bnechosen; // Multiplexer selects
+				 memin, immer, regin, dst,bneBEQ, bnechosen,jelly; // Multiplexer selects
 	 wire [1:0]  alusrca, alusrcb,PCSrc; // two bit instruction for 4 input mux
 	 wire [2:0] aluOps; // ALU Operations
 	 wire [4:0] rs, rd, rt, rw, shamt; // Regfile read addresses
-   wire [5:0] funct,status,currently;
+   wire [5:0] funct,status,actualstate;
 	 // dA -> from regfile to: A reg
 	 // dB -> from regfile to: A reg
    // dAheld -> from A reg to: ALU
@@ -77,7 +77,7 @@ module MCPU
 																.imm(imm16),
 																.address(jAddress),
 																.instruction(pco),
-																.state(currently),
+																.state(actualstate),
 																.PC_WE(pc_we),
 																.MemIn(memin),
 																.Mem_WE(mem_we),
@@ -92,10 +92,11 @@ module MCPU
 																.ALUSrcB(alusrcb),
 																.ALUOp(aluOps),
 																.PCSrc(PCSrc),
-																.jal(),
+																.jal(pcjal),
 																.BEN(ben),
 																.BEQBNE(bneBEQ),
-																.newstatus(status)
+																.newstatus(status),
+																.clk(clk)
 																);
 
 	 // RegDst mux
@@ -113,6 +114,11 @@ module MCPU
 															.address(bneBEQ),
 															.input0(zim), // beq
 															.input1(nzim)); // bne
+
+	 muxnto1byn #(6) statemux(.out(actualstate),
+														  .address(reset),
+														  .input0(status), // beq
+														  .input1(3'd1)); // bne
 	 //  mux for PCSrc input
    muxnto1byn #(32) pcsrc(.out(pcSrcB4),
 													.address(bnechosen),
