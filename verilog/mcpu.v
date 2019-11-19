@@ -14,11 +14,12 @@ module MCPU
 	 input reset
 	 );
 	 reg resetreg;
+	 reg [5:0] current;
 	 reg [31:0]zeroora;
 	 wire  zim, zero, nzim, nzero, cout, oflow, // 1-bit outputs of the ALU
 				 reg_we, mem_we,// Wr Enables of the regfile and memory
          pc_we, ir_we, a_we, b_we, ben, jal,// d-flip flop enables
-				 memin, immer, regin, dst,bneBEQ, bnechosen,jelly; // Multiplexer selects
+				 memin, immer, regin, dst,bneBEQ, bnechosen,jelly,pcdoit,realmemmy,gambino; // Multiplexer selects
 	 wire [1:0]  alusrca, alusrcb,PCSrc; // two bit instruction for 4 input mux
 	 wire [2:0] aluOps; // ALU Operations
 	 wire [4:0] rs, rd, rt, rw, shamt,aw; // Regfile read addresses
@@ -48,17 +49,18 @@ module MCPU
 	 initial begin
 	 	zeroora = 32'd0;
 		resetreg=1;
+		current=5'd0;
 	 end
 
 	 ALU alu(.result(alu_out),
 					 .carryout(cout),
 					 .zero(zim),
 					 .overflow(oflow),
-					 .operandA(dAheld),
-					 .operandB(dBheld),
+					 .operandA(A_input),
+					 .operandB(B_input),
 					 .command(aluOps));
 
-	 memory memo(.PC(pci), //doesnt belong
+	 memory memo(.PC(pcout), //doesnt belong
 							 .instruction(pco), // doesnt belong
 							 .data_out(memout),
 							 .data_in(dBheld),
@@ -74,7 +76,9 @@ module MCPU
 								.WriteRegister(aw),
 								.RegWrite(reg_we),
 								.Clk(clk));
-
+	 always @(status)begin
+	 	current<=status;
+	 end
    InstructionparselLUT looker (.rs(rs),
 																.rt(rt),
 																.rd(rd),
@@ -82,8 +86,8 @@ module MCPU
 																.funct(funct),
 																.imm(imm16),
 																.address(jAddress),
-																.instruction(pco),
-																.state(actualstate),
+																.instruction(irout),
+																.state(current),
 																.PC_WE(pc_we),
 																.MemIn(memin),
 																.Mem_WE(mem_we),
@@ -121,10 +125,10 @@ module MCPU
 															.input0(zim), // beq
 															.input1(nzim)); // bne
 
-	 muxnto1byn #(6) statemux(.out(actualstate),
-														  .address(reset),
-														  .input0(status), // beq
-														  .input1(3'd1)); // bne
+	 // muxnto1byn #(6) statemux(.out(actualstate),
+		// 												  .address(resetreg),
+		// 												  .input0(status), // beq
+		// 												  .input1(3'd0)); // bne
 	 //  mux for PCSrc input
    muxnto1byn #(32) pcsrc(.out(pcSrcB4),
 													.address(bnechosen),
@@ -178,7 +182,7 @@ module MCPU
 								 );
 	 // IR reg
 	 register32 IRreg(
-								.d(memout),
+								.d(pco),
 								.q(irout),
 								.clk(clk),
 								.wrenable(ir_we)
@@ -205,19 +209,19 @@ module MCPU
 	 // ALU A 4 input mux
 	 Multiplexer4doubletime ALU_A(
 																.out(A_input),
-																.address0(alusrca[0]), .address1(alusrca[1]),
+																.address(alusrca),
 																.in0(pcout), .in1(dAheld), .in2(ben_out), .in3(32'b0)
 																);
 	 // ALU B 4 input mux
 	 Multiplexer4doubletime ALU_B(
 																.out(B_input),
-																.address0(alusrcb[0]), .address1(alusrcb[1]),
+																.address(alusrcb),
 																.in0(shifted), .in1(imm32), .in2(dBheld), .in3(32'd4)
 																);
 	 // PCSrc 4 input mux
 	 Multiplexer4doubletime pcsrcboi(
 																	 .out(pcSrcout),
-																	 .address0(PCSrc[0]), .address1(PCSrc[1]),
+																	 .address(PCSrc),
 																	 .in0(pcSrcB4), .in1(concat_out), .in2(alu_out), .in3(alu_reg)
 																	 );
 
@@ -225,6 +229,9 @@ module MCPU
 	 not nzimsig(nzim, zim);
 
 	 muxnto1byn #(.width(32)) resetmulti(.out(inputtopc), .address(resetreg), .input1(zeroora),.input0(pcSrcout));
+	 //muxnto1byn #(.width(1)) sdadaddad(.out(pcdoit), .address(resetreg), .input1(1),.input0(pc_we));
+	 //muxnto1byn #(.width(1)) resetto(.out(realmemmy), .address(resetreg), .input1(0),.input0(memin));
+	 //muxnto1byn #(.width(1)) cuppo(.out(gambino), .address(resetreg), .input1(1),.input0(ir_we));
 
 	 always @(reset) begin
 		  if(reset==1) begin
