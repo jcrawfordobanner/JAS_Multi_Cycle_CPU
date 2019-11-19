@@ -13,9 +13,9 @@ module MCPU
 	 input clk,
 	 input reset
 	 );
-	 reg resetreg;
+	 // reg resetreg;
 	 reg [5:0] current;
-	 reg [31:0]zeroora;
+	 reg [31:0]zeroinput;
 	 wire  zim, zero, nzim, nzero, cout, oflow, // 1-bit outputs of the ALU
 				 reg_we, mem_we,// Wr Enables of the regfile and memory
          pc_we, ir_we, a_we, b_we, ben, jal,// d-flip flop enables
@@ -47,8 +47,8 @@ module MCPU
 	 //wire [31:0] pci, pco, pcjal; // pci -> instruction, pco -> command
 
 	 initial begin
-	 	zeroora = 32'd0;
-		resetreg=1;
+	 	zeroinput = 32'd0;
+		// resetreg=1;
 		current=5'd0;
 	 end
 
@@ -120,15 +120,15 @@ module MCPU
 	 // MemToReg mux
 	 muxnto1byn #(32) mdrmux(.out(mdr_or_alu),
 													 .address(regin),
-													 .input0(mdrout),
-													 .input1(alu_reg));
+													 .input0(alu_reg),
+													 .input1(mdrout));
 	 //BNE/BEQ mux
    muxnto1byn #(1) bnebeqmux(.out(bnechosen),
 															.address(bneBEQ),
 															.input0(zim), // beq
 															.input1(nzim)); // bne
 
-   muxnto1byn #(32) pcsrc(.out(pcSrcB4),
+   muxnto1byn #(32) bmux2(.out(pcSrcB4),
 													.address(bnechosen),
 													.input0(ben_out), // beq
 													.input1(alu_reg)); // bne
@@ -233,19 +233,19 @@ module MCPU
 
 	 not nzimsig(nzim, zim);
 
-	 muxnto1byn #(.width(32)) resetmulti(.out(inputtopc), .address(resetreg), .input1(zeroora),.input0(pcSrcout));
+	 muxnto1byn #(.width(32)) resetmulti(.out(inputtopc), .address(reset), .input1(zeroinput),.input0(pcSrcout));
 	 //muxnto1byn #(.width(6)) resetti(.out(actualstate), .address(resetreg), .input1(5'd0),.input0(current));
 	 //muxnto1byn #(.width(1)) sdadaddad(.out(pcdoit), .address(resetreg), .input1(1),.input0(pc_we));
 	 //muxnto1byn #(.width(1)) resetto(.out(realmemmy), .address(resetreg), .input1(0),.input0(memin));
 	 //muxnto1byn #(.width(1)) cuppo(.out(gambino), .address(resetreg), .input1(1),.input0(ir_we));
 
-	 always @(reset) begin
-		  if(reset==1) begin
-		    //pcaddress <= 32'b0;
-		    assign resetreg = 1'b1;
-		  end
-		  else  begin
-		    assign resetreg = 1'b0;
-		  end
-		end
+	 // always @(reset) begin
+	 // 	  if(reset==1) begin
+	 // 	    //pcaddress <= 32'b0;
+	 // 	    assign resetreg = 1'b1;
+	 // 	  end
+	 // 	  else  begin
+	 // 	    assign resetreg = 1'b0;
+	 // 	  end
+	 // 	end
 endmodule

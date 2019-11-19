@@ -25,23 +25,23 @@
 `define WB 3'd4
 
 module reggie(
-  output[5:0] out,
-  input[5:0] in,
+							output [5:0] out,
+							input [5:0]  in,
 
-  //output reg[31:0] PCaddress,
-  input clk,
-  input reset
-);
-reg [5:0]  memory={5'd0};
-assign out = memory;
-always @(posedge reset) begin
-        memory <= 5'd0;
-    end
-
-always @(posedge clk) begin
-        memory <= in;
-    end
-
+							//output reg[31:0] PCaddress,
+							input 			 clk,
+							input 			 reset
+							);
+	 reg [5:0] 							 memory={5'd0};
+	 assign out = memory;
+	 always @(posedge clk) begin
+			if(reset) begin
+				 memory <= 5'd0;
+			end
+			else begin
+         memory <= in;
+			end
+	 end
 endmodule
 
 module InstructionparselLUT
@@ -87,7 +87,7 @@ input reset
   assign address=instruction[25:0];
   assign shamt=instruction[10:6];
   assign funct=instruction[5:0];
-  always @(posedge clk) begin
+  always @(newstatus) begin
     case(newstatus)
       `IF:begin state=`ID; end
       `ID: begin
@@ -206,7 +206,7 @@ input reset
       end
       `WB: begin
         case(instruction[31:26])
-          `LW:begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=1; RegIn=0; Immer=1; Reg_WE=1; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; cheese=0; end
+          `LW:begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=1; RegIn=1; Immer=1; Reg_WE=1; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; cheese=0; end
           `RTYPE:begin
             case(instruction[5:0])
               `tADD:begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=1; Reg_WE=1; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd3; jal=0; BEN=0; BEQBNE=0; cheese=0; end
@@ -218,7 +218,7 @@ input reset
           `BEQ:begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=1; Reg_WE=0; A_WE=0; B_WE=0; ALUSrcA=2'd1; ALUSrcB=2'd2; ALUOp=`iSUB; PCSrc=2'd0; jal=0; BEN=0; BEQBNE=0; cheese=0; end
           `BNE:begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=1; Reg_WE=0; A_WE=0; B_WE=0; ALUSrcA=2'd1; ALUSrcB=2'd2; ALUOp=`iSUB; PCSrc=2'd0; jal=0; BEN=0; BEQBNE=1; cheese=0; end
           `XORI:begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=1; Reg_WE=1; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd3; jal=0; BEN=0; BEQBNE=0; cheese=0; end
-          `ADDI:begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=1; Reg_WE=1; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd3; jal=0; BEN=0; BEQBNE=0; cheese=0; end
+          `ADDI:begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=1; Reg_WE=1; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; cheese=0; end
         endcase
       end
     endcase

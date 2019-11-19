@@ -3,8 +3,8 @@
 ## Assembly settings
 
 # Assembly program (minus .asm extension)
-PROGRAM := insert_test/insert_sort
-# PROGRAM := basic_op_tests/jaljr_test
+# PROGRAM := insert_test/insert_sort
+PROGRAM := basic_op_tests/addi_test
 
 # Memory image(s) to create from the assembly program
 TEXTMEMDUMP := $(PROGRAM).text.hex
