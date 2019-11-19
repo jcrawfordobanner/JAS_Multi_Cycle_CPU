@@ -76,9 +76,9 @@ module MCPU
 								.WriteRegister(aw),
 								.RegWrite(reg_we),
 								.Clk(clk));
-	 always @(posedge clk)begin
-	 	current<=status;
-	 end
+	 //always @* begin
+	 //	current<=status;
+	 //end
 	 // always @(negedge resetreg)begin
 	 // 	current<=5'd0;
 	 // end
@@ -90,7 +90,6 @@ module MCPU
 																.imm(imm16),
 																.address(jAddress),
 																.instruction(irout),
-																.state(actualstate),
 																.PC_WE(pc_we),
 																.MemIn(memin),
 																.Mem_WE(mem_we),
@@ -108,9 +107,9 @@ module MCPU
 																.jal(jal),
 																.BEN(ben),
 																.BEQBNE(bneBEQ),
-																.newstatus(status),
 																.clk(clk),
-																.cheese(cheese)
+																.cheese(cheese),
+																.reset(reset)
 																);
 
 	 // RegDst mux
@@ -235,7 +234,7 @@ module MCPU
 	 not nzimsig(nzim, zim);
 
 	 muxnto1byn #(.width(32)) resetmulti(.out(inputtopc), .address(resetreg), .input1(zeroora),.input0(pcSrcout));
-	 muxnto1byn #(.width(32)) resetti(.out(actualstate), .address(resetreg), .input1(5'd0),.input0(current));
+	 //muxnto1byn #(.width(6)) resetti(.out(actualstate), .address(resetreg), .input1(5'd0),.input0(current));
 	 //muxnto1byn #(.width(1)) sdadaddad(.out(pcdoit), .address(resetreg), .input1(1),.input0(pc_we));
 	 //muxnto1byn #(.width(1)) resetto(.out(realmemmy), .address(resetreg), .input1(0),.input0(memin));
 	 //muxnto1byn #(.width(1)) cuppo(.out(gambino), .address(resetreg), .input1(1),.input0(ir_we));
