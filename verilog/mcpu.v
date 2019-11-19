@@ -13,13 +13,15 @@ module MCPU
 	 input clk,
 	 input reset
 	 );
+	 reg resetreg;
+	 reg [31:0]zeroora;
 	 wire  zim, zero, nzim, nzero, cout, oflow, // 1-bit outputs of the ALU
 				 reg_we, mem_we,// Wr Enables of the regfile and memory
-         pc_we, ir_we, a_we, b_we, ben,// d-flip flop enables
+         pc_we, ir_we, a_we, b_we, ben, jal,// d-flip flop enables
 				 memin, immer, regin, dst,bneBEQ, bnechosen,jelly; // Multiplexer selects
 	 wire [1:0]  alusrca, alusrcb,PCSrc; // two bit instruction for 4 input mux
 	 wire [2:0] aluOps; // ALU Operations
-	 wire [4:0] rs, rd, rt, rw, shamt; // Regfile read addresses
+	 wire [4:0] rs, rd, rt, rw, shamt,aw; // Regfile read addresses
    wire [5:0] funct,status,actualstate;
 	 // dA -> from regfile to: A reg
 	 // dB -> from regfile to: A reg
@@ -40,9 +42,13 @@ module MCPU
 	 wire [15:0] imm16, immer16out;
 	 wire [25:0] jAddress;
 	 wire [31:0] dA, dB, A_input, B_input, dAheld, dBheld, shifted, pcout, memout, irout, imm32, data_addr,
-							 concat_out, mdrout,alu_out,alu_reg,ben_out,pcSrcout, pcSrcB4, mdr_or_alu,pci, pco,pcjal;
+							 concat_out, mdrout,alu_out,alu_reg,ben_out,pcSrcout, pcSrcB4, mdr_or_alu,pci, pco,inputtopc;
 	 //wire [31:0] pci, pco, pcjal; // pci -> instruction, pco -> command
 
+	 initial begin
+	 	zeroora = 32'd0;
+		resetreg=1;
+	 end
 
 	 ALU alu(.result(alu_out),
 					 .carryout(cout),
@@ -65,7 +71,7 @@ module MCPU
 								.WriteData(mdr_or_alu),
 								.ReadRegister1(rs),
 								.ReadRegister2(rt),
-								.WriteRegister(rw),
+								.WriteRegister(aw),
 								.RegWrite(reg_we),
 								.Clk(clk));
 
@@ -92,7 +98,7 @@ module MCPU
 																.ALUSrcB(alusrcb),
 																.ALUOp(aluOps),
 																.PCSrc(PCSrc),
-																.jal(pcjal),
+																.jal(jal),
 																.BEN(ben),
 																.BEQBNE(bneBEQ),
 																.newstatus(status),
@@ -125,10 +131,10 @@ module MCPU
 													.input0(ben_out), // beq
 													.input1(alu_reg)); // bne
 	// Jal mux
-   muxnto1byn #(32) jalmux(.out(dw),
+   muxnto1byn #(5) jalmux(.out(aw),
 													.address(jal),
-													.input0(irout),
-													.input1(31'd31));
+													.input0(rw),
+													.input1(5'd31));
 	 // immediate 16 mux
    muxnto1byn #(16) immermux(.out(immer16out),
 														 .address(immer),
@@ -159,7 +165,7 @@ module MCPU
 									 );
 	 // PC
 	 register32 PCreg(
-								.d(pcSrcout),
+								.d(inputtopc),
 								.q(pcout),
 								.clk(clk),
 								.wrenable(pc_we)
@@ -218,4 +224,15 @@ module MCPU
 
 	 not nzimsig(nzim, zim);
 
+	 muxnto1byn #(.width(32)) resetmulti(.out(inputtopc), .address(resetreg), .input1(zeroora),.input0(pcSrcout));
+
+	 always @(reset) begin
+		  if(reset==1) begin
+		    //pcaddress <= 32'b0;
+		    assign resetreg = 1'b1;
+		  end
+		  else  begin
+		    assign resetreg = 1'b0;
+		  end
+		end
 endmodule
