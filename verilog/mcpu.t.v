@@ -68,7 +68,7 @@ module cpu_test ();
 			// automatically fake_cpufake_cpureport the results.
 			$display("Time | PC       | Instruction | data_addr");
 			repeat(20) begin
-         $display("%4t | %h | %h    | %h", $time, cpu.pci, cpu.pco, cpu.memo.data_addr); #10 ;
+         $display("%4t | %h | %h    | %h", $time,  cpu.pcout, cpu.irout, cpu.memo.data_addr); #10 ;
       end
 			$display("... more execution (see waveform)");
 
@@ -76,7 +76,7 @@ module cpu_test ();
 			// or use a smarter approach like looking for an exit syscall or the
 			// PC to be the value of the last instruction in your program.
 			#20000;
-			$display("%4t | %h | %h | %h", $time, cpu.pci, cpu.pco, cpu.regf.gen1[2].greg.q); #20 ;
+			$display("%4t | %h | %h | %h", $time,  cpu.pcout, cpu.irout, cpu.regf.gen1[6].greg.q); #20 ;
  $finish();
    end
 
