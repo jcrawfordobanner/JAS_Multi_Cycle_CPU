@@ -1,8 +1,7 @@
 `include "alu.v"
 `include "regfile.v"
 `include "memory.v"
-//`include "IFUcomps/multiplexer.v"
-`include "comps/IFUcomps/signextend.v"
+`include "signextend.v"
 `include "register.v"
 `include "mux4.v"
 `include "LUT_biggie.v"
@@ -13,7 +12,7 @@ module MCPU
 	 input clk,
 	 input reset
 	 );
-	 // reg resetreg;
+
 	 reg [5:0] current;
 	 reg [31:0]zeroinput;
 	 wire  zim, zero, nzim, nzero, cout, oflow, // 1-bit outputs of the ALU
@@ -239,13 +238,5 @@ module MCPU
 	 //muxnto1byn #(.width(1)) resetto(.out(realmemmy), .address(resetreg), .input1(0),.input0(memin));
 	 //muxnto1byn #(.width(1)) cuppo(.out(gambino), .address(resetreg), .input1(1),.input0(ir_we));
 
-	 // always @(reset) begin
-	 // 	  if(reset==1) begin
-	 // 	    //pcaddress <= 32'b0;
-	 // 	    assign resetreg = 1'b1;
-	 // 	  end
-	 // 	  else  begin
-	 // 	    assign resetreg = 1'b0;
-	 // 	  end
-	 // 	end
+
 endmodule
