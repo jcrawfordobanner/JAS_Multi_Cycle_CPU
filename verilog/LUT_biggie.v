@@ -156,7 +156,7 @@ input reset
   always @(newstatus,instruction) begin
     rd<=instruction[15:11];
     case(newstatus)
-      `IF:begin PC_WE=1; MemIn=0; Mem_WE=0; IR_WE=1; Dst=0; RegIn=0; Immer=1; Reg_WE=0; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd3; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; cheese=1; end
+      `IF:begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=1; Dst=0; RegIn=0; Immer=1; Reg_WE=0; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd3; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; cheese=1; end
       `ID: begin
         case(instruction[31:26])
           `LW:begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=1; RegIn=0; Immer=1; Reg_WE=0; A_WE=1; B_WE=1; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; cheese=0; end
@@ -180,18 +180,18 @@ input reset
       `EXEC: begin
         case(instruction[31:26])
           `LW:begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=1; RegIn=0; Immer=1; Reg_WE=0; A_WE=0; B_WE=0; ALUSrcA=2'd1; ALUSrcB=2'd1; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; cheese=0; end
-          `SW:begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=1; RegIn=0; Immer=1; Reg_WE=0; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd1; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; cheese=0; end
+          `SW:begin PC_WE=0; MemIn=0; Mem_WE=1; IR_WE=0; Dst=1; RegIn=0; Immer=1; Reg_WE=0; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd1; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; cheese=0; end
           `RTYPE:begin
             case(instruction[5:0])
               `tADD:begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=1; Reg_WE=0; A_WE=1; B_WE=1; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; cheese=0; end
               `tSUB:begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=1; Reg_WE=0; A_WE=1; B_WE=1; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; cheese=0; end
               `tSLT:begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=1; Reg_WE=0; A_WE=1; B_WE=1; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; cheese=0; end
-              `tJR:begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=0; Reg_WE=0; A_WE=0; B_WE=0; ALUSrcA=2'd1; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; cheese=0; end
+              `tJR:begin PC_WE=1; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=0; Reg_WE=0; A_WE=0; B_WE=0; ALUSrcA=2'd1; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; cheese=0; end
             endcase
           end
           `JAL:begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=1; Reg_WE=0; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd3; ALUOp=`iADD; PCSrc=2'd2; jal=1; BEN=0; BEQBNE=0; cheese=0; end
-          `BEQ:begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=1; Reg_WE=0; A_WE=1; B_WE=1; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; cheese=0; end
-          `BNE:begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=1; Reg_WE=0; A_WE=1; B_WE=1; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; cheese=0; end
+          `BEQ:begin PC_WE=1; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=1; Reg_WE=0; A_WE=1; B_WE=1; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; cheese=0; end
+          `BNE:begin PC_WE=1; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=1; Reg_WE=0; A_WE=1; B_WE=1; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; cheese=0; end
           `XORI:begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=1; RegIn=0; Immer=1; Reg_WE=0; A_WE=1; B_WE=1; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iXOR; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; cheese=0; end
           `ADDI:begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=1; RegIn=0; Immer=1; Reg_WE=0; A_WE=1; B_WE=1; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; cheese=0; end
         endcase
@@ -199,7 +199,7 @@ input reset
       `MEM: begin
         case(instruction[31:26])
           `LW:begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=1; RegIn=0; Immer=1; Reg_WE=0; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; cheese=0; end
-          `SW:begin PC_WE=0; MemIn=1; Mem_WE=1; IR_WE=0; Dst=1; RegIn=0; Immer=1; Reg_WE=0; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; cheese=0; end
+          `SW:begin PC_WE=1; MemIn=1; Mem_WE=0; IR_WE=0; Dst=1; RegIn=0; Immer=1; Reg_WE=0; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; cheese=0; end
           `BEQ:begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=1; Reg_WE=0; A_WE=0; B_WE=0; ALUSrcA=2'd2; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=1; BEQBNE=0; cheese=0; end
           `BNE:begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=1; Reg_WE=0; A_WE=0; B_WE=0; ALUSrcA=2'd2; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=1; BEQBNE=1; cheese=0; end
         endcase
@@ -209,16 +209,16 @@ input reset
           `LW:begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=1; RegIn=1; Immer=1; Reg_WE=1; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; cheese=0; end
           `RTYPE:begin
             case(instruction[5:0])
-              `tADD:begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=1; Reg_WE=1; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd3; jal=0; BEN=0; BEQBNE=0; cheese=0; end
-              `tSUB:begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=1; Reg_WE=1; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd3; jal=0; BEN=0; BEQBNE=0; cheese=0; end
-              `tSLT:begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=1; Reg_WE=1; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd3; jal=0; BEN=0; BEQBNE=0; cheese=0; end
+              `tADD:begin PC_WE=1; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=1; Reg_WE=1; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd3; jal=0; BEN=0; BEQBNE=0; cheese=0; end
+              `tSUB:begin PC_WE=1; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=1; Reg_WE=1; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd3; jal=0; BEN=0; BEQBNE=0; cheese=0; end
+              `tSLT:begin PC_WE=1; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=1; Reg_WE=1; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd3; jal=0; BEN=0; BEQBNE=0; cheese=0; end
             endcase
           end
-          `JAL:begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=1; Immer=1; Reg_WE=1; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd1; jal=1; BEN=0; BEQBNE=0; cheese=0; end
+          `JAL:begin PC_WE=1; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=1; Immer=1; Reg_WE=1; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd1; jal=1; BEN=0; BEQBNE=0; cheese=0; end
           `BEQ:begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=1; Reg_WE=0; A_WE=0; B_WE=0; ALUSrcA=2'd1; ALUSrcB=2'd2; ALUOp=`iSUB; PCSrc=2'd0; jal=0; BEN=0; BEQBNE=0; cheese=0; end
           `BNE:begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=1; Reg_WE=0; A_WE=0; B_WE=0; ALUSrcA=2'd1; ALUSrcB=2'd2; ALUOp=`iSUB; PCSrc=2'd0; jal=0; BEN=0; BEQBNE=1; cheese=0; end
-          `XORI:begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=1; Reg_WE=1; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd3; jal=0; BEN=0; BEQBNE=0; cheese=0; end
-          `ADDI:begin PC_WE=0; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=1; Reg_WE=1; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; cheese=0; end
+          `XORI:begin PC_WE=1; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=1; Reg_WE=1; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd3; jal=0; BEN=0; BEQBNE=0; cheese=0; end
+          `ADDI:begin PC_WE=1; MemIn=0; Mem_WE=0; IR_WE=0; Dst=0; RegIn=0; Immer=1; Reg_WE=1; A_WE=0; B_WE=0; ALUSrcA=2'd0; ALUSrcB=2'd0; ALUOp=`iADD; PCSrc=2'd2; jal=0; BEN=0; BEQBNE=0; cheese=0; end
         endcase
       end
     endcase
